@@ -1,0 +1,54 @@
+apply plugin: "java"
+apply plugin: "application"
+
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+
+group = "com.uplinkzero.example"
+mainClassName = "com.uplinkzero.example.MultiThreadingExample"
+version = "1.0.0"
+
+buildscript {
+    repositories {
+        mavenCentral()
+        maven {
+            //url "http://someOtherMavenRepository"
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testCompile group: "junit", name: "junit", version: "4.11"
+    testCompile group: "org.mockito", name: "mockito-core", version:"1.10.8"
+}
+
+jar {
+    manifest {
+        attributes("Created-By": "James Chapman",
+                   "Implementation-Title": rootProject.name,
+                   "Implementation-Version": version,
+                   "Main-Class": mainClassName);
+    }
+}
+
+task fatjar(type: Jar, dependsOn: jar) {
+    manifest {
+        attributes("Created-By": "James Chapman",
+                   "Implementation-Title": rootProject.name,
+                   "Implementation-Version": version,
+                   "Main-Class": mainClassName);
+    }
+
+    from {
+        configurations.compile.collect {
+            it.isDirectory() ? it : zipTree(it);
+        }
+    }
+    from project.sourceSets.main.output
+    destinationDir = new File('build/fatjar/');
+    archiveName = rootProject.name + '-' + version + '_fat.jar';
+}
